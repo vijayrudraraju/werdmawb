@@ -26,12 +26,14 @@
                 <label for="textarea1">textarea1</label>
                 <textarea name="textarea1" id="textarea1"></textarea>
             </div><!-- /fieldcontain -->
+            <div id="profile1">
+            </div>
         </div><!-- /content -->
         <div data-role="footer" data-id="foot" data-position="fixed">
             <div data-role="navbar">
                 <ul>
-                    <li><a href="#input" class="ui-btn-active ui-state-persist">input</a></li>
-                    <li><a href="#query" class="ui-state-persist">query</a></li>
+                    <li><a href="#input" data-transition="fade" class="ui-btn-active ui-state-persist">input</a></li>
+                    <li><a href="#query" data-transition="fade" class="ui-state-persist">query</a></li>
                 </ul>
             </div><!-- /navbar -->
         </div><!-- /footer -->
@@ -45,6 +47,8 @@
                 <label for="textarea2">textarea2</label>
                 <textarea name="textarea2" id="textarea2"></textarea>
             </div><!-- /fieldcontain -->
+            <div id="profile2">
+            </div>
             <div class="ui-grid-a">
                 <div class="ui-block-a">
                     <p id="feedback1">feedback1</p>
@@ -57,13 +61,12 @@
         <div data-role="footer" data-id="foot" data-position="fixed">
             <div data-role="navbar">
                 <ul>
-                    <li><a href="#input" class="ui-state-persist">input</a></li>
-                    <li><a href="#query" class="ui-btn-active ui-state-persist">query</a></li>
+                    <li><a href="#input" data-transition="fade" class="ui-state-persist">input</a></li>
+                    <li><a href="#query" data-transition="fade" class="ui-btn-active ui-state-persist">query</a></li>
                 </ul>
             </div><!-- /navbar -->
         </div><!-- /footer -->
     </div><!-- /page -->
-
 
     <div data-role="page" id="login" data-title="toiweb">
         <div data-role="header">

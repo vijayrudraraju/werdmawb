@@ -14,6 +14,8 @@ function() {
         console.log('trigger loggedOut');
         elem.trigger("loggedOut");
       };
+      $('#input').page();
+      $('#query').page();
       $('#input').page('destroy').page();
       $('#query').page('destroy').page();
     }

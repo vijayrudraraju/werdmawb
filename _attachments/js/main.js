@@ -1,10 +1,17 @@
 // vijay rudraraju
 var gP;
+$(document).bind('mobileinit', function() {
+    console.log('document.bind"mobileinit"');
+});
 $(document).ready(function() {
-
+    console.log('$document.ready');
     $.couch.app(function(app) {
         $("#account1").evently("account", app);
         $("#account2").evently("account", app);
+        $("#profile1").evently("profile", app);
+        $("#profile2").evently("profile", app);
+        $.evently.connect("#account1","#profile1", ["loggedIn","loggedOut"]);
+        $.evently.connect("#account2","#profile2", ["loggedIn","loggedOut"]);
         //$('#account').trigger('create');
     });
 
@@ -12,13 +19,13 @@ $(document).ready(function() {
     //$.couch.urlPrefix = "http://localhost:5984/toiweb/_design/toiweb";
     $.couch.info({
         success: function(data) {
-            console.log('info');
+            console.log('couch.info ->');
             console.log(data);
         }
     });
     $.couch.allDbs({
         success: function(data) {
-            console.log('allDbs');
+            console.log('couch.allDbs ->');
             console.log(data);
         }
     });
@@ -35,9 +42,9 @@ $(document).ready(function() {
     }
     });
     */
-    $.couch.db('toiweb').allDocs({
+    $.couch.db('werdmawb').allDocs({
         success: function(data) {
-            console.log('allDocs');
+            console.log('couch.db"werdmawb".allDocs ->');
             console.log(data);
         }
     });
