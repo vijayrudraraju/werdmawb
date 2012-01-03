@@ -370,3 +370,30 @@ function calcLevenshteinDistance(firstWord,secondWord) {
 
     return distMatrix[matrixWidth-1][matrixHeight-1];
 }
+
+function startAutoSaver() {
+    $('#profile1').data('autosave',true);
+    autoSaver();
+}
+function stopAutoSaver() {
+    $('#profile1').data('autosave',false);
+}
+function autoSaver() {
+    if ($('#profile1').data('autosave')) {
+        console.log('autosaving');
+        $('#profile1').html('<p>Saving...<p>');
+        var mainDb = $.couch.db('werdmawb');
+        var newDoc = $('#profile1').data('mainDoc');
+        newDoc['wordIndex'] = $('#textarea1').data('wordIndex');
+        newDoc['phraseIndex'] = $('#textarea1').data('phraseIndex');
+        mainDb.saveDoc(newDoc,
+            {
+                success: function(data) {
+                    $('#profile1').html('<p>Saved!<p>');
+                    stopAutoSaver();
+                    var t = setTimeout('autoSaver()',10000);
+                }
+            }
+        );
+    }
+}

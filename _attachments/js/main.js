@@ -7,11 +7,11 @@ $(document).ready(function() {
     console.log('$document.ready');
     $.couch.app(function(app) {
         $("#account1").evently("account", app);
-        $("#account2").evently("account", app);
+        //$("#account2").evently("account", app);
         $("#profile1").evently("profile", app);
-        $("#profile2").evently("profile", app);
+        //$("#profile2").evently("profile", app);
         $.evently.connect("#account1","#profile1", ["loggedIn","loggedOut"]);
-        $.evently.connect("#account2","#profile2", ["loggedIn","loggedOut"]);
+        //$.evently.connect("#account2","#profile2", ["loggedIn","loggedOut"]);
         //$('#account').trigger('create');
     });
 
@@ -109,8 +109,8 @@ $(document).ready(function() {
             $(this).data('timeIndex',{});
             $(this).data('assocIndex',{});
 
-            $(this).html('apple apartment application apart\nhello');
-            $(this).trigger('keyup');
+            //$(this).html('apple apartment application apart\nhello');
+            //$(this).trigger('keyup');
         },
         keyup: function(e) {
             var newTime = $.now();
@@ -143,6 +143,7 @@ $(document).ready(function() {
             // end word index
 
             $(this).data('oldTime',newTime);
+            startAutoSaver();
         }
     });
 
