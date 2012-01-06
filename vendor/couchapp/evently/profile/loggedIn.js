@@ -20,10 +20,15 @@ function(e, r) {
             mainDb.openDoc(profile.main, {
                 success : function(mainDoc) {
                     $('#profile1').data('mainDoc',mainDoc);
+
                     $('#profile1').data('wordIndex',mainDoc.wordIndex);
                     $('#profile1').data('phraseIndex',mainDoc.phraseIndex);
+                    $('#profile1').data('numStrokes',mainDoc.numStrokes);
+
                     $('#textarea1').data('wordIndex',mainDoc.wordIndex);
                     $('#textarea1').data('phraseIndex',mainDoc.phraseIndex);
+                    $('#textarea1').data('numStrokes',mainDoc.numStrokes);
+
                     startAutoSaver();
                 }
             });
@@ -36,7 +41,8 @@ function(e, r) {
             mainDb.saveDoc(
                 {
                     wordIndex:$('#textarea1').data('wordIndex'),
-                    phraseIndex:$('#textarea1').data('phraseIndex')
+                    phraseIndex:$('#textarea1').data('phraseIndex'),
+                    numStrokes:$('#textarea1').data('numStrokes')
                 }, 
                 {
                     success: function(data) {
@@ -58,10 +64,15 @@ function(e, r) {
                         mainDb.openDoc(newProfile.main, {
                             success : function(mainDoc) {
                                 $('#profile1').data('mainDoc',mainDoc);
+
                                 $('#profile1').data('wordIndex',mainDoc.wordIndex);
                                 $('#profile1').data('phraseIndex',mainDoc.phraseIndex);
+                                $('#profile1').data('numStrokes',mainDoc.numStrokes);
+
                                 $('#textarea1').data('wordIndex',mainDoc.wordIndex);
                                 $('#textarea1').data('phraseIndex',mainDoc.phraseIndex);
+                                $('#textarea1').data('numStrokes',mainDoc.numStrokes);
+
                                 startAutoSaver();
                             }
                         });

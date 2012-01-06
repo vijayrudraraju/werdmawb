@@ -176,47 +176,67 @@ function indexPhraseHelper(phrase,index,buffer) {
 function retrievePhraseQueryTree(phrase,index,result,buffer) {
     if (phrase[0] !== '') {
         var foundIndex = index.indexOf(phrase[0]);
-        console.log(phrase);
-        console.log('phrase: '+phrase[0]);
-        console.log('foundIndex: '+foundIndex);
+        //console.log(phrase);
+        //console.log('phrase: '+phrase[0]);
+        //console.log('foundIndex: '+foundIndex);
+        //console.log('result: '+result);
+        //console.log('buffer: '+buffer);
         // if the letter is not found return nothing
         if (foundIndex === -1) {
             return '';     
         }
 
-        buffer += phrase[0] + ' ';
+        //buffer += phrase[0] + ' ';
+        buffer.push(phrase[0]);
 
         if (phrase[1] !== undefined) {
-            result = retrievePhraseQueryTree(phrase.slice(1),index[foundIndex+2],result,buffer);
+            result = retrievePhraseQueryTree(phrase.slice(1),index[foundIndex+2],result,buffer.slice());
         } else {
-            result = phraseSubTreeToText(retrievePhraseSubTree(index[foundIndex+2],[]),'',buffer);
+            //console.log(index[foundIndex+2]);
+            //console.log(' index[foundIndex+2] - retrievePhraseQueryTree(...)');
+            //result = phraseSubTreeToText(retrievePhraseSubTree(index[foundIndex+2],[]),'',buffer);
+            result = phraseSubTreeToText(retrievePhraseSubTree(index[foundIndex+2],[]),[],buffer.slice());
             //result = retrievePhraseSubTree(index[foundIndex+2],[]);
         }
     }
     return result;
 }
 function retrievePhraseSubTree(index,result) {
+    //console.log('subindex');
+    //console.log(index);
+    if (index[0] == null) {
+        return result;
+    }
     for (var i=0;i<index.length;i+=4) {
         result.push(index[i]); 
         result.push(retrievePhraseSubTree(index[i+2],[])); 
         result.push(index[i+3]); 
     }
+    //console.log('subresult');
+    //console.log(result);
     return result;
 }
 function phraseSubTreeToText(subTree,result,buffer) {
-    console.log('subTree.length: '+subTree.length);
+    //console.log('subTree.length: '+subTree.length);
     for (var i=0;i<subTree.length;i+=3) {
         if (subTree[i] !== '') {
-            buffer += subTree[i];
-            console.log('subTree[i]: '+subTree[i]);
-            if (subTree.length >= 6) {
+            //buffer += subTree[i];
+            buffer.push(subTree[i]);
+            //console.log('subTree[i]: '+subTree[i]);
+            /*
+            if (subTree[i+1].length > 3) {
                 buffer += ' ';
             }
-            result = phraseSubTreeToText(subTree[i+1],result,buffer);
+            */
+            //console.log('subbuffer');
+            //console.log(buffer);
+            result = phraseSubTreeToText(subTree[i+1],result,buffer.slice());
+            buffer.pop(); 
             //buffer = buffer.substring(0,buffer.length);
         }
     }
-    result += '<br/>'+buffer; 
+    //result += '<br/>'+buffer; 
+    result.push(buffer);
     return result;
 }
 
@@ -256,7 +276,7 @@ function retrieveWordQueryTree(word,index,result,buffer) {
         if (word[1] !== undefined) {
             result = retrieveWordQueryTree(word.slice(1),index[foundIndex+2],result,buffer);
         } else {
-            result = wordSubTreeToText(retrieveWordSubTree(index[foundIndex+2],[]),'',buffer);
+            result = wordSubTreeToText(retrieveWordSubTree(index[foundIndex+2],[]),[],buffer);
         }
     } 
 
@@ -277,7 +297,7 @@ function wordSubTreeToText(subTree,result,buffer) {
             buffer = buffer.substring(0,buffer.length-1);
         }
     }
-    result += '<br/>'+buffer; 
+    result.push(buffer); 
     return result;
 }
 
@@ -379,19 +399,31 @@ function stopAutoSaver() {
     $('#profile1').data('autosave',false);
 }
 function autoSaver() {
-    if ($('#profile1').data('autosave')) {
+    var d = new Date();
+    var t1 = $('#profile1').data('lastSaveTime');
+    var t2 = d.getTime();
+    var minDelta = 10000;
+    console.log('t1 '+t1+' t2 '+t2);
+
+    if ($('#profile1').data('autosave') && $('#profile1').data('profile') && t1 + minDelta < t2) {
         console.log('autosaving');
         $('#profile1').html('<p>Saving...<p>');
         var mainDb = $.couch.db('werdmawb');
         var newDoc = $('#profile1').data('mainDoc');
         newDoc['wordIndex'] = $('#textarea1').data('wordIndex');
         newDoc['phraseIndex'] = $('#textarea1').data('phraseIndex');
+        newDoc['numStrokes'] = $('#textarea1').data('numStrokes');
         mainDb.saveDoc(newDoc,
             {
                 success: function(data) {
                     $('#profile1').html('<p>Saved!<p>');
+
+                    var t = d.getTime();
+                    $('#profile1').data('lastSaveTime',t);
+
                     stopAutoSaver();
-                    var t = setTimeout('autoSaver()',10000);
+                    $.mobile.fixedToolbars.show();
+                    //var t = setTimeout('autoSaver()',10000);
                 }
             }
         );

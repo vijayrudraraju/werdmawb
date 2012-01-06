@@ -99,8 +99,17 @@ $(document).ready(function() {
         }
     });
 
+    $('#profile1').evently({
+        _init: function() {
+            $(this).data('lastSaveTime',0);
+        }
+    });
+
     $('#textarea1').evently({
         _init: function() {
+            $(this).data('lines',[]);
+            $(this).data('oldLines',[]);
+            $(this).data('numStrokes',0);
             $(this).data('wordIndex',['',0,[]]);
             $(this).data('phraseIndex',['',0,[],[]]);
 
@@ -112,16 +121,44 @@ $(document).ready(function() {
             //$(this).html('apple apartment application apart\nhello');
             //$(this).trigger('keyup');
         },
+        keydown: function(e) {
+            console.log('keydown');
+        },
         keyup: function(e) {
+            console.log('keyup');
+
             var newTime = $.now();
             var oldTime = $(this).data('oldTime');
 
             // start word index
             var lines = $(this).val().split('\n');
+            $(this).data('lines',lines);
+            oldLines = $(this).data('oldLines');
+
             var words = [];
             var allWords = [];
-            //console.log('lines');
-            //console.log(lines);
+            console.log('lines');
+            console.log(lines);
+
+            // consolidation checking, redundancy checking
+            /*
+            var distances = [];
+            var modifications = 0;
+            if (oldLines.length == lines.length) {
+
+                for (var i=0;i<lines.length;i++) {
+                    distances.push(calcLevenshteinDistance(oldLines[i],lines[i])); 
+                    if (distances[distances.length-1] > 0 && distances[distances.length-1] < 5) {
+                        modifications++; 
+                    }
+                }
+                console.log('distances');
+                console.log(distances);
+                console.log(modifications);
+
+            }// else {
+            */
+
             for (var i=0;i<lines.length;i++) {
                 //indexParagraph(lines.slice(i),time,$(this).data('paragraphIndex'));
                 words = lines[i].split(/ +/);
@@ -130,6 +167,8 @@ $(document).ready(function() {
                 indexPhrase(words,$(this).data('phraseIndex'));
                 allWords = allWords.concat(lines[i].split(/ +/)); 
             }
+
+            //}
             //console.log('allWords');
             //console.log(allWords);
             for (var i=0;i<allWords.length;i++) {
@@ -142,7 +181,14 @@ $(document).ready(function() {
             //console.log($(this).data('wordIndex'));
             // end word index
 
+            var numStrokes = $(this).data('numStrokes');
+            numStrokes++;
+            $(this).data('numStrokes',numStrokes);
+
+            $(this).data('oldLines',lines);
+
             $(this).data('oldTime',newTime);
+
             startAutoSaver();
         }
     });
@@ -159,12 +205,53 @@ $(document).ready(function() {
                 allWords = allWords.concat(lines[i].split(/ +/)); 
             }
 
-            var retrievalResult = retrieveWordQueryTree(text,$('#textarea1').data('wordIndex'),'','');
-            //console.log('retrievalResult: '+retrievalResult);
-            $('#feedback1').html(retrievalResult);
-            retrievalResult = retrievePhraseQueryTree(allWords,$('#textarea1').data('phraseIndex'),'','');
-            console.log(retrievalResult);
-            $('#feedback2').html(retrievalResult);
+            var wordRetrievalResult = retrieveWordQueryTree(text,$('#textarea1').data('wordIndex'),[],'');
+            var phraseRetrievalResult = retrievePhraseQueryTree(allWords,$('#textarea1').data('phraseIndex'),'',[]);
+            console.log('wordRetrievalResult');
+            console.log(wordRetrievalResult);
+            console.log('phraseRetrievalResult');
+            console.log(phraseRetrievalResult);
+
+            $('#querygrid').html('');
+            var length = 0;
+            if (wordRetrievalResult.length > phraseRetrievalResult.length) {
+                length = wordRetrievalResult.length; 
+            } else {
+                length = phraseRetrievalResult.length; 
+            }
+
+            for (var i=0;i<length;i++) {
+                if (i < wordRetrievalResult.length) {
+                    $('#querygrid').append('<div class="ui-block-a"><div class="ui-bar ui-bar-b">'+wordRetrievalResult[i]+'</div></div>');
+                } else {
+                    $('#querygrid').append('<div class="ui-block-a"><div></div></div>');
+                }
+
+                if (i < phraseRetrievalResult.length) {
+                    var pointer = phraseRetrievalResult[i];
+                    var thisString = pointer.join(' ');
+                    $('#querygrid').append('<div class="ui-block-b"><div class="ui-bar ui-bar-b">'+thisString+'</div></div>');
+                } else {
+                    $('#querygrid').append('<div class="ui-block-b"><div></div></div>');
+                }
+            }
+/*
+            for (var i=0;i<wordRetrievalResult.length;i++) {
+                $('#querygrid').append('<div class="ui-block-a"><div class="ui-bar ui-bar-b">'+wordRetrievalResult[i]+'</div></div>');
+            }
+            for (var i=0;i<phraseRetrievalResult.length;i++) {
+                var pointer = phraseRetrievalResult[i];
+                var thisString = pointer.join(' ');
+                $('#querygrid').append('<div class="ui-block-b"><div class="ui-bar ui-bar-b">'+thisString+'</div></div>');
+            }
+            */
+            //$('#feedback2').html(retrievalResult);
+
+            $(document).trigger('updatelayout');
+            $.mobile.fixedToolbars.show();
         }
     });
+
+    $(document).trigger('updatelayout');
+    $.mobile.fixedToolbars.show();
 });
