@@ -23,10 +23,12 @@ function(e, r) {
 
                     $('#profile1').data('wordIndex',mainDoc.wordIndex);
                     $('#profile1').data('phraseIndex',mainDoc.phraseIndex);
+                    $('#profile1').data('paragraphIndex',mainDoc.paragraphIndex);
                     $('#profile1').data('numStrokes',mainDoc.numStrokes);
 
                     $('#textarea1').data('wordIndex',mainDoc.wordIndex);
                     $('#textarea1').data('phraseIndex',mainDoc.phraseIndex);
+                    $('#textarea1').data('paragraphIndex',mainDoc.paragraphIndex);
                     $('#textarea1').data('numStrokes',mainDoc.numStrokes);
 
                     startAutoSaver();
@@ -42,6 +44,7 @@ function(e, r) {
                 {
                     wordIndex:$('#textarea1').data('wordIndex'),
                     phraseIndex:$('#textarea1').data('phraseIndex'),
+                    paragraphIndex:$('#textarea1').data('paragraphIndex'),
                     numStrokes:$('#textarea1').data('numStrokes')
                 }, 
                 {
@@ -67,10 +70,12 @@ function(e, r) {
 
                                 $('#profile1').data('wordIndex',mainDoc.wordIndex);
                                 $('#profile1').data('phraseIndex',mainDoc.phraseIndex);
+                                $('#profile1').data('paragraphIndex',mainDoc.paragraphIndex);
                                 $('#profile1').data('numStrokes',mainDoc.numStrokes);
 
                                 $('#textarea1').data('wordIndex',mainDoc.wordIndex);
                                 $('#textarea1').data('phraseIndex',mainDoc.phraseIndex);
+                                $('#textarea1').data('paragraphIndex',mainDoc.paragraphIndex);
                                 $('#textarea1').data('numStrokes',mainDoc.numStrokes);
 
                                 startAutoSaver();

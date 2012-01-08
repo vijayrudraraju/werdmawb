@@ -48,13 +48,6 @@ function Bucket() {
     }
 }
 
-/* Helper function to trace debug output. */
-function trace(text) {
-    var out = document.getElementById('output');
-    if (out)
-        out.innerHTML += '<p>'+text+'</p>\n'
-}
-
 /* Class to wrap an association list. */
 function Assoc() {
     this.contents = {};
@@ -76,17 +69,6 @@ function Assoc() {
     this.length = function() {
         return this.keys().length;
     }
-}
-
-/* Split a full signal name into device and signal parts. */
-function splitSigName(signame)
-{
-    var i = signame.indexOf("/", 1);
-    if (i<0)
-        return null;
-
-    return [signame.substring(0, i),
-            signame.substring(i)];
 }
 
 /* Get the full offset and size of an element. */
@@ -142,6 +124,92 @@ Object.prototype.nodeCount = function() {
 };
 */
 
+function reinitializePersonalIndex() {
+    $('#textarea1').data('numStrokes',0);
+    $('#textarea1').data('wordIndex',['',0,[]]);
+    $('#textarea1').data('phraseIndex',['',0,[],[]]);
+    $('#textarea1').data('paragraphIndex',['',0,[],[]]);
+}
+
+/*
+Paragraphs
+*/
+
+function indexParagraph(paragraph,index) {
+    for (var i=0;i<paragraph.length;i++) {
+        indexParagraphHelper(paragraph.slice(i),index,paragraph.slice(0,i));
+    }
+}
+function indexParagraphHelper(paragraph,index,buffer) {
+    if (paragraph !== '') {
+        var foundIndex = index.indexOf(paragraph[0]);
+        if (foundIndex === -1) {
+            index.push(paragraph[0]);
+            index.push(0);
+            index.push(['',0,[],[]]);
+            index.push([buffer.slice()]);
+            foundIndex = index.indexOf(paragraph[0]);
+        } else {
+            index[foundIndex+1]++;
+
+/*
+            console.log('key')
+            console.log(paragraph[0]);
+            console.log('buffer');
+            console.log(buffer);
+            console.log('prefix index');
+            console.log(index[foundIndex+3]);
+            */
+
+            var isNew = true;
+            var candidates = [];
+            for (var i=0;i<index[foundIndex+3].length;i++) {
+                if (buffer.length == index[foundIndex+3][i].length) {
+                    //console.log('new candidate');
+                    //console.log(index[foundIndex+3][i]);
+                    candidates.push(index[foundIndex+3][i].slice());
+                }
+            }
+
+            //console.log('candidates');
+            //console.log(candidates);
+
+            var hitCount = 0;
+            for (var i=0;i<candidates.length;i++) {
+                hitCount = 0;
+                for (var j=0;j<candidates[i].length;j++) {
+                    if (candidates[i][j] == buffer[j]) {
+                        hitCount++;
+                    }
+                }
+                if (hitCount == buffer.length) {
+                    isNew = false;
+                    break;
+                }
+            }
+
+            if (isNew && buffer.length > 0) {
+                //console.log('new prefix found');
+                //console.log(buffer);
+                index[foundIndex+3].push(buffer.slice());
+            }
+        }
+
+        if (paragraph[1] !== undefined) {
+            buffer.push(paragraph[0]);
+            indexParagraphHelper(paragraph.slice(1),index[foundIndex+2],buffer.slice());
+        } else {
+            var terminalIndex = index[foundIndex+2].indexOf('');
+            index[foundIndex+2][terminalIndex+1]++;
+        }
+    }
+}
+
+/*
+Phrases
+*/
+
+// indexing
 function indexPhrase(phrase,index) {
     //console.log('indexPhrase');
     //console.log(phrase);
@@ -157,10 +225,36 @@ function indexPhraseHelper(phrase,index,buffer) {
             index.push(phrase[0]);
             index.push(0);
             index.push(['',0,[],[]]);
-            index.push(buffer.slice());
+            index.push([buffer.slice()]);
             foundIndex = index.indexOf(phrase[0]);
         } else {
             index[foundIndex+1]++;
+
+            var isNew = true;
+            var candidates = [];
+            for (var i=0;i<index[foundIndex+3].length;i++) {
+                if (buffer.length == index[foundIndex+3][i].length) {
+                    candidates.push(index[foundIndex+3][i].slice());
+                }
+            }
+
+            var hitCount = 0;
+            for (var i=0;i<candidates.length;i++) {
+                hitCount = 0;
+                for (var j=0;j<candidates[i].length;j++) {
+                    if (candidates[i][j] == buffer[j]) {
+                        hitCount++;
+                    }
+                }
+                if (hitCount == buffer.length) {
+                    isNew = false;
+                    break;
+                }
+            }
+
+            if (isNew && buffer.length > 0) {
+                index[foundIndex+3].push(buffer.slice());
+            }
         }
 
         if (phrase[1] !== undefined) {
@@ -173,6 +267,7 @@ function indexPhraseHelper(phrase,index,buffer) {
         }
     }
 }
+// retrieval
 function retrievePhraseQueryTree(phrase,index,result,buffer) {
     if (phrase[0] !== '') {
         var foundIndex = index.indexOf(phrase[0]);
@@ -202,8 +297,8 @@ function retrievePhraseQueryTree(phrase,index,result,buffer) {
     return result;
 }
 function retrievePhraseSubTree(index,result) {
-    //console.log('subindex');
-    //console.log(index);
+    console.log('subindex');
+    console.log(index);
     if (index[0] == null) {
         return result;
     }
@@ -240,6 +335,11 @@ function phraseSubTreeToText(subTree,result,buffer) {
     return result;
 }
 
+/*
+Words
+*/
+
+// indexing
 // concatenated triplets
 // key
 // strength
@@ -264,6 +364,7 @@ function indexWord(word,newTime,oldTime,index) {
         }
     }
 }
+// retrieval
 function retrieveWordQueryTree(word,index,result,buffer) {
     if (word !== '') {
         var foundIndex = index.indexOf(word[0]);
@@ -302,55 +403,8 @@ function wordSubTreeToText(subTree,result,buffer) {
 }
 
 /*
-function indexWord(word,newTime,oldTime,index) {
-    if (word != '') {
-        if (index[word[0]] === undefined) {
-            index[word[0]] = {};
-            //index[word[0]]['_timeStamp'] = newTime;
-            //index[word[0]]['_hitCount'] = 1;
-        } else if (oldTime == index[word[0]]['_timeStamp']) {
-            //index[word[0]]['_timeStamp'] = newTime;
-            //index[word[0]]['_hitCount']++;
-        }
-
-        if (word[1] !== undefined) {
-            indexWord(word.slice(1),newTime,oldTime,index[word[0]]);
-        }
-    }
-}
+String functions
 */
-
-/*
-function indexPhrase(phrase,time,index) {
-    if (phrase != '') {
-        if (index[phrase[0]] === undefined) {
-            index[phrase[0]] = {};
-            index[phrase[0]]['_timestamp'] = [time];
-        } else {
-            index[phrase[0]]['_timestamp'].push(time);
-        }
-
-        if (phrase[1] !== undefined) {
-            indexPhrase(phrase.slice(1),time,index[phrase[0]]);
-        }
-    }
-}
-*/
-function indexParagraph(paragraph,time,index) {
-    if (paragraph != '') {
-        if (index[paragraph[0]] === undefined) {
-            index[paragraph[0]] = {};
-            index[paragraph[0]]['_timestamp'] = [time];
-        } else {
-            index[paragraph[0]]['_timestamp'].push(time);
-        }
-
-        if (paragraph[1] !== undefined) {
-            indexParagraph(paragraph.slice(1),time,index[paragraph[0]]);
-        }
-    }
-}
-
 function calcLevenshteinDistance(firstWord,secondWord) {
     var matrixWidth = firstWord.length+1;
     var matrixHeight = secondWord.length+1;
@@ -391,6 +445,9 @@ function calcLevenshteinDistance(firstWord,secondWord) {
     return distMatrix[matrixWidth-1][matrixHeight-1];
 }
 
+/*
+Data saving
+*/
 function startAutoSaver() {
     $('#profile1').data('autosave',true);
     autoSaver();

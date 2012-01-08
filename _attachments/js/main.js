@@ -109,12 +109,13 @@ $(document).ready(function() {
         _init: function() {
             $(this).data('lines',[]);
             $(this).data('oldLines',[]);
+
             $(this).data('numStrokes',0);
             $(this).data('wordIndex',['',0,[]]);
             $(this).data('phraseIndex',['',0,[],[]]);
+            $(this).data('paragraphIndex',['',0,[],[]]);
 
             $(this).data('oldTime','');
-            $(this).data('paragraphIndex',{});
             $(this).data('timeIndex',{});
             $(this).data('assocIndex',{});
 
@@ -140,46 +141,17 @@ $(document).ready(function() {
             console.log('lines');
             console.log(lines);
 
-            // consolidation checking, redundancy checking
-            /*
-            var distances = [];
-            var modifications = 0;
-            if (oldLines.length == lines.length) {
-
-                for (var i=0;i<lines.length;i++) {
-                    distances.push(calcLevenshteinDistance(oldLines[i],lines[i])); 
-                    if (distances[distances.length-1] > 0 && distances[distances.length-1] < 5) {
-                        modifications++; 
-                    }
-                }
-                console.log('distances');
-                console.log(distances);
-                console.log(modifications);
-
-            }// else {
-            */
+            indexParagraph(lines,$(this).data('paragraphIndex')); 
 
             for (var i=0;i<lines.length;i++) {
-                //indexParagraph(lines.slice(i),time,$(this).data('paragraphIndex'));
                 words = lines[i].split(/ +/);
-                //console.log('words');
-                //console.log(words);
                 indexPhrase(words,$(this).data('phraseIndex'));
                 allWords = allWords.concat(lines[i].split(/ +/)); 
             }
 
-            //}
-            //console.log('allWords');
-            //console.log(allWords);
             for (var i=0;i<allWords.length;i++) {
-                //for (var j=0;j<words[i].length;j++) {
-                    //console.log('indexing...'+words[i]);
                     indexWord(allWords[i],newTime,oldTime,$(this).data('wordIndex'));
-                    //}
-                    //indexPhrase(words.slice(i),time,$(this).data('phraseIndex'));
             }
-            //console.log($(this).data('wordIndex'));
-            // end word index
 
             var numStrokes = $(this).data('numStrokes');
             numStrokes++;
